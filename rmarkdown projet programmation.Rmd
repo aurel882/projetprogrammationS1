@@ -1,0 +1,142 @@
+---
+title: 'Projet technique de programmation S1 '
+author: "BRESSON Aurélien, ABZIZ Yassir"
+date: "2025-01-12"
+output:
+  word_document: default
+  html_document: default
+  pdf_document: default
+---
+
+## Introduction
+
+Le code suivant permet de calculer les calories brûlées lors d'une activité physique ainsique dans sa journée entière, en tenant compte de l'activité, de la durée, du poids, de l'âge et du sexe de l'utilisateur.
+
+### Le MET : Concept Clé
+
+Nous utilisons un dataset qui associe des activités physiques à un indice MET (Metabolic Equivalent of Task). Le MET (Metabolic Equivalent of Task) est une unité de mesure statistique de l’intensité physique.
+
+1 MET est égale à l’énergie d’une personne assise sur une chaise au repos total. En utilisant le MET, on peut comparer l’effort requis pour différentes activités physiques. Si on pratique une activité à 2 METs, cela signifie qu'on consomme deux fois plus de calories qu’au repos.
+
+## Dataset des activités
+
+On associe à chaque activité physique une valeur MET. Cela nous permet de comparer différentes activités et d'évaluer la dépense énergétique correspondante.
+
+Les activités varient de tâches simples comme "Dormir" (MET = 1) à des activités très intenses comme "Course à pied de type marathon" (MET = 23). Ces valeurs sont issues de la littérature scientifique, ce qui permet une évaluation assez précise de la dépense énergétique en fonction de l'intensité de l'activité.
+
+```{r}
+# Création du dataframe activities
+activities <- data.frame(
+  activity = c("Dormir", "Regarder la télévision", "Jouer à des jeux vidéos en position assise", "Lire en position assise",
+               "Travail de bureau assis, avec ou sans ordinateur", "Jouer à des jeux de société", "Se déplacer en voiture", 
+               "Être debout", "Manger en position assise", "Pêche à la ligne", "Faire la vaisselle", "Activité sexuelle, partenaire passif",
+               "Jouer de la guitare", "Cuisiner ou préparer des repas", "Se brosser les dents", "Se doucher", "Marcher lentement, flâner",
+               "Réaliser des étirements", "Yoga", "S'occuper d'enfants, général", "Nettoyage général de la maison", "Pilates", "Danse de salon, lente",
+               "Promener le chien", "Voile (nautisme)", "Surf", "Équitation, au pas", "S'occuper d'un potager", "Tennis de table / ping-pong",
+               "Marcher pour se rendre sur son lieu de travail", "Vélo à assistance électrique", "Volley-ball, match", "Ski alpin et snowboard",
+               "Tondre la pelouse (tondeuse à moteur)", "Golf, parcours", "Baseball", "Snorkeling", "Kayak (promenade)", "Plongée bouteille",
+               "Randonnée à travers champs et versants de collines", "Randonnée en raquettes à neige, effort modéré", "Badminton, match",
+               "Escalade, difficulté modérée", "Activité sexuelle, partenaire actif", "Entraînement en résistance", "Zumba", "Stand up paddle",
+               "Promenade à vélo à son rythme", "Tennis, match", "Patinage sur glace", "Vélo d'appartement", "Football, match", "Course à pied d'endurance",
+               "Basket-ball, match", "Roller en ligne, loisir", "Danse générale, rapide", "Randonnée technique avec sac à dos", "Monter des escaliers",
+               "Hockey sur glace", "Natation synchronisée", "Rugby, match", "Natation, crawl", "VTT", "Course à pied de type cross country",
+               "Water-polo, match", "Cyclisme de loisir, 22,5 km/h à 25,6 km/h", "Arts martiaux, en combat", "Natation, brasse",
+               "Entraînement fractionné de haute intensité", "Plongée libre (plongée en apnée)", "Handball, match", "Boxe, combat sur ring",
+               "Corde à sauter", "Course à pied de type marathon", "Natation, papillon", "Cyclisme à plus de 32 km/h", "Course à pied de type sprint"),
+  MET = c(1.0, 1.0, 1.0, 1.0, 1.3, 1.3, 1.3, 1.3, 1.5, 1.8, 1.8, 1.8, 2.0, 2.0, 2.0, 2.0, 2.0, 2.3, 2.3, 2.5, 2.5, 2.8, 
+          3.0, 3.0, 3.0, 3.0, 3.8, 3.8, 4.0, 4.0, 4.0, 4.0, 4.3, 4.5, 4.8, 5.0, 5.0, 5.0, 5.3, 5.3, 5.3, 5.5, 5.8, 5.8, 
+          6.0, 6.5, 6.5, 6.8, 6.8, 7.0, 7.0, 7.0, 7.0, 7.5, 7.5, 7.8, 7.8, 8.0, 8.0, 8.0, 8.3, 8.3, 8.5, 9.3, 10.0, 
+          10.0, 10.3, 10.3, 11.0, 11.8, 12.0, 12.3, 12.3, 13.3, 13.8, 16.8, 23.0)
+)
+```
+
+## Calcul des Calories
+
+### Demandes à l'utilisateur
+
+Le code suivant permet à l'utilisateur de spécifier l'activité physique qu'il a pratiqué, la durée de l'exercice, ainsi que son poids, âge et sexe. Ces informations sont essentielles pour personnaliser le calcul des calories brûlées.
+
+```{r}
+# On affiche un message à l'utilisateur et on récupère sa réponse
+activity <- readline(prompt = "Entrez une activité parmi celles listées ci-dessus : ")
+duration <- as.numeric(readline(prompt = "Entrez la durée en minutes : "))
+weight <- as.numeric(readline(prompt = "Entrez votre poids en kilogrammes : "))
+age <- as.numeric(readline(prompt = "Entrez votre âge : "))
+sex <- readline(prompt = "Entrez votre sexe (Homme/Femme) : ")
+```
+
+### Recherche de l'activité et calcul des calories
+
+Une fois ces informations collectées, nous recherchons l'activité dans notre dataset et nous appliquons une formule qui prend en compte le MET de l'activité, le poids de l'utilisateur, la durée, et un facteur d'ajustement basé sur l'âge et le sexe. Cela nous permet d'estimer avec précision la dépense calorique.
+
+```{r}
+# Avant le bloc if, on initialise l'objet calories_burned à 0
+calories_burned <- 0
+
+# On filtre le dataframe activities pour ne sélectionne que la ligne choisie par l'utilisateur
+selected_activity <- activities[activities$activity == activity, ]
+
+# On vérifie qu'une activité valide ait été trouvée et on demande le sexe de l'utilisateur
+if (nrow(selected_activity) == 0) {
+  cat("Activité non reconnue. Veuillez vérifier l'orthographe et réessayer.\n")
+} else {
+  if (sex == "Homme") {
+    tmb_factor <- 1.0
+  } else if (sex == "Femme") {
+    tmb_factor <- 0.9
+  } else {
+    cat("Sexe non reconnu. Veuillez entrer 'Homme' ou 'Femme'.\n")
+    stop()
+  }
+# On ajuste le calcul calorique en fonction de l'âge de l'utilisateur
+  age_adjustment <- 1 - (age - 20) * 0.0025
+  
+# On calcule les calories brulées
+  calories_burned <- selected_activity$MET * weight * (duration / 60) * tmb_factor * age_adjustment
+
+# On affiche le résultat
+  cat("Vous avez brûlé environ", round(calories_burned, 2), "calories.\n")
+}
+
+```
+
+### Explication du calcul
+
+Le `selected_activity` filtre le dataset pour ne retenir que l'activité choisie par l'utilisateur.
+
+Les hommes brûlent généralement plus de calories que les femmes, c'est pourquoi un facteur de 1 est appliqué pour les hommes et de 0.9 pour les femmes.
+
+Le métabolisme diminue avec l'âge, c'est pourquoi on applique un ajustement basé sur l'âge. Ce calcul est basé sur une estimation moyenne, qui pourrait être plus précise avec des données plus détaillées.
+
+Finalement, les calories brûlées sont calculées à l'aide de la formule :
+
+Calories brulées = MET× Poids × ( Durée/60 )× Facteur d’ajustement× Ajustement d’âge
+
+### Calcul du BMR (Basal Metabolic Rate)
+
+Le BMR correspond à la quantité de calories brûlées pour effectuer les fonctions de base (basales) de notre corps. Plus notre BMR est élevé, ,plus on brûle de calories simplement en étant vivant.
+
+```{r}
+# On demande à l'utilisateur sa taille puis on calcule son BMR
+height <- as.numeric(readline(prompt = "Entrez votre taille en cm : "))
+  if (sex == "Homme") {
+    bmr <- 10 * weight + 6.25 * height - 5 * age + 5
+  } else {
+    bmr <- 10 * weight + 6.25 * height - 5 * age - 161
+  }
+
+ # On calcule le total des calories brulées lors de la journée
+ total_calories <- calories_burned + bmr 
+```
+
+## Conclusion
+
+On affiche les calories totales dépensées par l'utilisateur lors de son activité et lors de sa journée.
+
+Ainsi l'utilisateur pourra ajuster sa consommation calorique,selon les dépenses qu'il produit, pour pouvoir atteindre ses objectifs physiques.
+
+```{r}
+# On affiche les résultats
+  cat("Vous avez brûlé environ", round(calories_burned, 2), "calories durant l'activité, et votre dépense calorique totale est d'environ", round(total_calories, 2), "calories.\n")
+
+```
