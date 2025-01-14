@@ -1,4 +1,4 @@
-# Projet programmation S1
+# Projet programmation S1, BRESSON Aurélien et ABZIZ Yassir
 
 Ce projet permet de calculer les dépenses énergétiques journalières d'un utilisateur en prenant en compte l'activité physique réalisée, ainsi que des données personnelles comme le poids, l'âge, le sexe et la taille. L'objectif est d'estimer les calories brûlées à la fois pendant l'activité physique et lors des fonctions basales de l'organisme, grâce à la méthode du métabolisme de base (BMR).
 
